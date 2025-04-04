@@ -4,8 +4,8 @@ import { io } from 'socket.io-client';
 import { createAirplane } from './airplane';
 
 // Socket.io setup
-// Replace with your actual server URL from Glitch, Render, or other platform
-const socket = io('https://your-project-name.glitch.me', {
+// Replace with your actual Render URL
+const socket = io('https://flymultiplayer.onrender.com', {
   transports: ['websocket', 'polling']
 });
 
@@ -204,15 +204,22 @@ function updateFlight() {
 }
 
 // Socket.io event handlers
+socket.on('connect', () => {
+  console.log('Connected to server with ID:', socket.id);
+});
+
 socket.on('currentPlayers', (players) => {
+    console.log('Received currentPlayers event with data:', players);
     Object.keys(players).forEach((id) => {
         if (id !== socket.id) {
+            console.log('Adding other player:', id);
             addOtherPlayer(players[id]);
         }
     });
 });
 
 socket.on('newPlayer', (playerInfo) => {
+    console.log('New player joined:', playerInfo.id);
     addOtherPlayer(playerInfo);
 });
 
@@ -232,13 +239,55 @@ socket.on('playerMoved', (playerInfo) => {
 });
 
 socket.on('playerDisconnected', (playerId) => {
+    console.log('Player disconnected:', playerId);
     if (otherPlayers[playerId]) {
         scene.remove(otherPlayers[playerId]);
         delete otherPlayers[playerId];
     }
 });
 
+// Handle periodic updates from server
+socket.on('playersUpdate', (allPlayers) => {
+    console.log('Received players update:', Object.keys(allPlayers).length, 'players');
+    
+    // Remove players that no longer exist
+    Object.keys(otherPlayers).forEach(id => {
+        if (!allPlayers[id] && id !== socket.id) {
+            console.log('Removing stale player:', id);
+            scene.remove(otherPlayers[id]);
+            delete otherPlayers[id];
+        }
+    });
+    
+    // Add or update other players
+    Object.keys(allPlayers).forEach(id => {
+        if (id !== socket.id) {
+            if (!otherPlayers[id]) {
+                console.log('Adding missing player:', id);
+                addOtherPlayer(allPlayers[id]);
+            } else {
+                // Update position
+                otherPlayers[id].position.copy(new THREE.Vector3(
+                    allPlayers[id].position.x,
+                    allPlayers[id].position.y,
+                    allPlayers[id].position.z
+                ));
+                otherPlayers[id].rotation.set(
+                    allPlayers[id].rotation.x,
+                    allPlayers[id].rotation.y,
+                    allPlayers[id].rotation.z
+                );
+            }
+        }
+    });
+});
+
+socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+});
+
 function addOtherPlayer(playerInfo) {
+    console.log('Creating airplane for player:', playerInfo.id, 'with color:', playerInfo.color);
     const otherAirplane = createAirplane(parseInt(playerInfo.color.replace('#', '0x')));
     otherAirplane.position.copy(new THREE.Vector3(
         playerInfo.position.x,

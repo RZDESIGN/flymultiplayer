@@ -39,7 +39,10 @@ io.on('connection', (socket) => {
     id: socket.id,
     position: { x: 0, y: 10, z: 0 },
     rotation: { x: 0, y: 0, z: 0 },
-    color: '#' + Math.floor(Math.random() * 16777215).toString(16)
+    // Use brighter, more distinct colors
+    color: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FF8000', '#8000FF'][
+      Math.floor(Math.random() * 8)
+    ]
   };
   
   // Send the current state of all players to the new player

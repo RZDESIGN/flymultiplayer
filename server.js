@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
       players[socket.id].rotation = movementData.rotation;
       
       // Broadcast the updated player position to all other players
-      socket.broadcast.emit('playerMoved', {
+      io.emit('playerMoved', {
         id: socket.id,
         position: players[socket.id].position,
         rotation: players[socket.id].rotation
@@ -71,6 +71,11 @@ io.on('connection', (socket) => {
     io.emit('playerDisconnected', socket.id);
   });
 });
+
+// Send periodic updates to all clients to ensure sync
+setInterval(() => {
+  io.emit('playersUpdate', players);
+}, 3000); // Send updates every 3 seconds
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
