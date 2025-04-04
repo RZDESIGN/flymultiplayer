@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fly Multiplayer</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+        #instructions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions">
+        <h2>Fly Multiplayer</h2>
+        <p>Controls:</p>
+        <ul>
+            <li>W/S - Pitch forward/backward</li>
+            <li>A/D - Roll left/right</li>
+            <li>Q/E - Yaw left/right</li>
+            <li>Space - Increase speed</li>
+            <li>Shift - Decrease speed</li>
+        </ul>
+    </div>
+    <script type="module" src="/src/client/main.js"></script>
+</body>
+</html> 
